@@ -22,7 +22,15 @@ async def bridge(url, tty, speed):
 async def w2m():
     "websocket > minitel"
     while (True):
-        data = await ws.recv()
+        try:
+            data = await ws.recv()
+
+        except websockets.exceptions.ConnectionClosedError:
+            print("Connection closed by remote host.")
+            exit(-1)
+        except websockets.exceptions.ConnectionClosedOK:
+            exit(0)
+
         ser.write(data.encode())
 
 
