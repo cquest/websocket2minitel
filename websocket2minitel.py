@@ -13,7 +13,7 @@ async def bridge(url, tty, speed):
 
     ser = serial.Serial(tty, speed, parity=serial.PARITY_EVEN,
                         bytesize=7, timeout=1)
-    ws = await websockets.connect(url)
+    ws = await websockets.connect(url, ping_interval=None)
     ser.write(b'\x07\x0c\x1f\x40\x41connexion\x0a')
     # cancel local echo (keyboard > modem > screen)
     ser.write(b'\x1b\x3b\x60\x58\x52')
@@ -22,7 +22,15 @@ async def bridge(url, tty, speed):
 async def w2m():
     "websocket > minitel"
     while (True):
-        data = await ws.recv()
+        try:
+            data = await ws.recv()
+
+        except websockets.exceptions.ConnectionClosedError:
+            print("Connection closed by remote host.")
+            exit(-1)
+        except websockets.exceptions.ConnectionClosedOK:
+            exit(0)
+
         ser.write(data.encode())
 
 
