@@ -13,7 +13,7 @@ async def bridge(url, tty, speed):
 
     ser = serial.Serial(tty, speed, parity=serial.PARITY_EVEN,
                         bytesize=7, timeout=1)
-    ws = await websockets.connect(url)
+    ws = await websockets.connect(url, ping_interval=None)
     ser.write(b'\x07\x0c\x1f\x40\x41connexion\x0a')
     # cancel local echo (keyboard > modem > screen)
     ser.write(b'\x1b\x3b\x60\x58\x52')
